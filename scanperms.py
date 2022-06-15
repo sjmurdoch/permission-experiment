@@ -1,4 +1,4 @@
-'''Check for negative group permissions'''
+'''Check for negative group and user permissions in a filesystem'''
 
 ### Copyright 2022 Steven Murdoch
 ###
@@ -24,7 +24,8 @@ import grp
 import sys
 
 def check(path: str, show_userneg: bool) -> None:
-    '''Check if PATH has negative group permissions'''
+    '''Check if PATH has negative group permissions and print results.
+    If SHOW_USERNEG is true, also show negative user permissions.'''
     try:
         file_stat = os.stat(path)
     except FileNotFoundError:
@@ -76,7 +77,7 @@ def check(path: str, show_userneg: bool) -> None:
         print(f"Negative user       {mode_str} {ownername:10.10} {groupname:10.10} {path}")
 
 def main() -> None:
-    '''Check recursively for negative group permissions in the current directory'''
+    '''Check recursively for negative group/user permissions in a specified directory'''
 
     ## Parse command line arguments
     parser = argparse.ArgumentParser(
