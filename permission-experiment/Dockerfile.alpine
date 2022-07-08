@@ -16,7 +16,7 @@ RUN addgroup -g $USER_UID $USERNAME \
     && addgroup -g $ADDITIONAL_GID $ADDITIONAL_GROUP \
     && addgroup $USERNAME $ADDITIONAL_GROUP
 COPY --from=build-env-alpine /app/mycat /app/mycat
-COPY sekrit.txt attack.sh /app
+COPY sekrit.txt attack.sh /app/
 RUN chown $USERNAME:$USERNAME /app \
     && chown 0:1000 /app/sekrit.txt \
     && chmod 606 /app/sekrit.txt

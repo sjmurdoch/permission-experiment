@@ -14,7 +14,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && groupadd --gid $ADDITIONAL_GID $ADDITIONAL_GROUP \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -G $ADDITIONAL_GROUP
 COPY --from=build-env-debian /app/mycat /app/mycat
-COPY sekrit.txt attack.sh /app
+COPY sekrit.txt attack.sh /app/
 RUN chown $USERNAME:$USERNAME /app \
     && chown 0:1000 /app/sekrit.txt \
     && chmod 606 /app/sekrit.txt
