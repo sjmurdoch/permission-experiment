@@ -1,0 +1,26 @@
+FROM debian:bullseye as build-env-debian
+WORKDIR /app
+COPY . .
+RUN apt-get update && apt-get install build-essential -y \
+    && gcc -Wall -o mycat mycat.c
+
+FROM debian:bullseye
+ARG USERNAME=user
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+ARG ADDITIONAL_GID=1001
+ARG ADDITIONAL_GROUP=additional
+RUN groupadd --gid $USER_GID $USERNAME \
+    && groupadd --gid $ADDITIONAL_GID $ADDITIONAL_GROUP \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -G $ADDITIONAL_GROUP
+COPY --from=build-env-debian /app/mycat /app/mycat
+COPY sekrit.txt attack.sh /app
+RUN chown $USERNAME:$USERNAME /app \
+    && chown 0:1000 /app/sekrit.txt \
+    && chmod 606 /app/sekrit.txt
+
+USER $USERNAME
+WORKDIR /app
+ENTRYPOINT ["/app/mycat"]
+
+#ENTRYPOINT ["su", "-", "user"]

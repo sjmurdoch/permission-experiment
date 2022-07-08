@@ -1,0 +1,26 @@
+FROM alpine as build-env-alpine
+WORKDIR /app
+COPY . .
+# Compile the binaries
+RUN apk add --no-cache build-base \
+    && gcc -Wall -o mycat mycat.c
+
+FROM alpine
+ARG USERNAME=user
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+ARG ADDITIONAL_GID=1001
+ARG ADDITIONAL_GROUP=additional
+RUN addgroup -g $USER_UID $USERNAME \
+    && adduser -u $USER_UID -G $USERNAME -D $USERNAME \
+    && addgroup -g $ADDITIONAL_GID $ADDITIONAL_GROUP \
+    && addgroup $USERNAME $ADDITIONAL_GROUP
+COPY --from=build-env-alpine /app/mycat /app/mycat
+COPY sekrit.txt attack.sh /app
+RUN chown $USERNAME:$USERNAME /app \
+    && chown 0:1000 /app/sekrit.txt \
+    && chmod 606 /app/sekrit.txt
+
+USER $USERNAME
+WORKDIR /app
+ENTRYPOINT ["/app/mycat"]
