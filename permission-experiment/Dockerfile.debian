@@ -13,6 +13,11 @@ ARG ADDITIONAL_GROUP=additional
 RUN groupadd --gid $USER_GID $USERNAME \
     && groupadd --gid $ADDITIONAL_GID $ADDITIONAL_GROUP \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -G $ADDITIONAL_GROUP
+# Add a user's primary group as the supplementary group
+#RUN groupadd --gid $USER_GID $USERNAME \
+#    && groupadd --gid $ADDITIONAL_GID $ADDITIONAL_GROUP \
+#    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -G $ADDITIONAL_GROUP \
+#    && addgroup user user
 COPY --from=build-env-debian /app/mycat /app/mycat
 COPY sekrit.txt attack.sh /app/
 RUN chown $USERNAME:$USERNAME /app \
