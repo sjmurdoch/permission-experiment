@@ -1,0 +1,35 @@
+#!/usr/bin/python3
+
+## Log how runc is being called
+## By default this saves logs to /tmp which is vulnerable to a race condition
+
+import sys
+import os
+import shutil
+
+BASE = "/tmp"
+
+def main():
+    f = open(BASE + "/runc-log.txt", "at")
+    f.write(repr(sys.argv))
+    f.write("\n")
+
+    i = None
+    try:
+        i = sys.argv.index("--bundle") + 1
+    except ValueError:
+        pass
+
+    if not i is None:
+        try:
+            shutil.copytree(sys.argv[i], BASE + "/runc-bundle",
+                    ignore_dangling_symlinks = True,
+                    symlinks=True)
+        except BaseException as err:
+            f.write("Exception " + repr(err))
+
+    f.close()
+    os.execv("/usr/sbin/runc", sys.argv)
+
+if __name__ == "__main__":
+    main()
