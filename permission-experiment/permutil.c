@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 int printgroups()
 {
@@ -30,11 +32,11 @@ int printgroups()
 	{
 		perror("Error calling getgroups");
 		exit(1);
-	} else if (ngroups2 > ngroups1)
+	}
+	else if (ngroups2 > ngroups1)
 	{
 		printf("Warning: group list truncated at %d\n", ngroups1);
 	}
-	
 
 	for (i = 0; i < ngroups2; i++)
 	{
@@ -45,7 +47,7 @@ int printgroups()
 	return 0;
 }
 
-int dropgroup(gid_t egid)
+int setgroup(gid_t egid)
 {
 	int retval;
 
@@ -84,12 +86,51 @@ int cat(char *filename)
 	return 0;
 }
 
+void help()
+{
+	printf("Usage:\n");
+	printf("  permutil -p\n    Print current group membership\n\n");
+	printf("  permutil -c FILENAME\n    Output contents of FILENAME to stdout\n\n");
+	printf("  permutil -s GID\n    set effective group to GID and print group membership\n\n");
+}
+
 int main(int argc, char *argv[])
 {
-	printgroups();
 	if (argc > 1)
 	{
-		printf("\nReading from file %s ...\n", argv[1]);
-		cat(argv[1]);
+		if (strcmp(argv[1], "-p") == 0)
+		{
+			printgroups();
+		}
+		else if (strcmp(argv[1], "-c") == 0 && argc > 2)
+		{
+			cat(argv[2]);
+		}
+		else if (strcmp(argv[1], "-s") == 0 && argc > 2)
+		{
+			long int gid;
+			char *end;
+			gid = strtol(argv[2], &end, 0);
+			if (end == argv[2] || *end != '\0' || errno == ERANGE)
+			{
+				help();
+				return 1;
+			}
+			else
+			{
+				setgroup(gid);
+				printgroups();
+			}
+		}
+		else
+		{
+			help();
+			return 1;
+		}
+	}
+	else
+	{
+		help();
+		return 0;
 	}
 }

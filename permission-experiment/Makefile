@@ -16,4 +16,7 @@ publish:
 	docker push sjmurdoch/permission-experiment:alpine-latest
 	docker push sjmurdoch/permission-experiment:debian-latest
 
+permutil: permutil.c
+	gcc -o permutil -Wall permutil.c
+
 .PHONY: build run attack
