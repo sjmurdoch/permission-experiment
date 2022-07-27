@@ -4,6 +4,7 @@ set -x
 : "### Operating system"
 cat /etc/os-release
 : "### Listing files"
+cd /app
 ls -ln
 : "### Current user and groups (from id)"
 id

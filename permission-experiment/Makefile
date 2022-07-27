@@ -10,9 +10,15 @@ run:
 
 attack:
 	@echo ">>> Running attack on alpine..."
-	-docker run --rm -it --entrypoint /bin/sh -u 1000 permission-experiment-alpine /app/attack.sh
+	-docker run --rm -it --entrypoint /bin/sh -u user permission-experiment-alpine /app/attack.sh
 	@echo "\n\n>>> Running attack on debian..."
-	-docker run --rm -it --entrypoint /bin/sh -u 1000 permission-experiment-debian /app/attack.sh
+	-docker run --rm -it --entrypoint /bin/sh -u user permission-experiment-debian /app/attack.sh
+
+workaround:
+	@echo ">>> Running attack on alpine (with workaround)..."
+	-docker run --rm -it --entrypoint /bin/su -u 0 permission-experiment-alpine -l user -c /app/attack.sh
+	@echo "\n\n>>> Running attack on debian (with workaround)..."
+	-docker run --rm -it --entrypoint /bin/su -u 0 permission-experiment-debian -l user -c /app/attack.sh
 
 publish:
 	docker build -t sjmurdoch/permission-experiment:alpine-latest -f Dockerfile.alpine .
