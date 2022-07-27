@@ -4,9 +4,9 @@ build:
 
 run:
 	@echo ">>> Testing alpine..."
-	-docker run --rm -it permission-experiment-alpine
+	-docker run --rm -it -u user permission-experiment-alpine
 	@echo "\n\n>>> Testing debian..."
-	-docker run --rm -it permission-experiment-debian
+	-docker run --rm -it -u user permission-experiment-debian
 
 attack:
 	@echo ">>> Running attack on alpine..."
