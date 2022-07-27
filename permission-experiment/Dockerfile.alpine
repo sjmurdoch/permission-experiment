@@ -1,9 +1,9 @@
 FROM alpine as build-env-alpine
 WORKDIR /app
-COPY . .
+COPY permutil.c .
 # Compile the binaries
 RUN apk add --no-cache build-base \
-    && gcc -Wall -o mycat mycat.c
+    && gcc -Wall -o permutil permutil.c
 
 FROM alpine
 ARG USERNAME=user
@@ -14,12 +14,15 @@ ARG ADDITIONAL_GROUP=additional
 RUN adduser -u $USER_UID -D $USERNAME \
     && addgroup -g $ADDITIONAL_GID $ADDITIONAL_GROUP \
     && addgroup $USERNAME $ADDITIONAL_GROUP
-COPY --from=build-env-alpine /app/mycat /app/mycat
-COPY sekrit.txt attack.sh /app/
-RUN chown $USERNAME:$USERNAME /app \
+COPY --from=build-env-alpine /app/permutil /app/permutil
+COPY attack.sh /app/
+RUN echo "Keep it secret, keep it safe" > /app/sekrit.txt \
+    && echo "Even root has secrets" > /app/root_sekrit.txt \
+    && chown $USERNAME:$USERNAME /app \
     && chown 0:1000 /app/sekrit.txt \
-    && chmod 606 /app/sekrit.txt
+    && chown 0:0 /app/root_sekrit.txt \
+    && chmod 606 /app/sekrit.txt /app/root_sekrit.txt
 
-USER $USERNAME
+#USER $USERNAME
 WORKDIR /app
-ENTRYPOINT ["/app/mycat"]
+ENTRYPOINT ["/app/permutil", "-p"]

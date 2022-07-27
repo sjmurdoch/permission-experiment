@@ -1,8 +1,8 @@
 FROM debian:bullseye as build-env-debian
 WORKDIR /app
-COPY . .
+COPY permutil.c .
 RUN apt-get update && apt-get install build-essential -y \
-    && gcc -Wall -o mycat mycat.c
+    && gcc -Wall -o permutil permutil.c
 
 FROM debian:bullseye
 ARG USERNAME=user
@@ -18,14 +18,17 @@ RUN groupadd --gid $USER_GID $USERNAME \
 #    && groupadd --gid $ADDITIONAL_GID $ADDITIONAL_GROUP \
 #    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -G $ADDITIONAL_GROUP \
 #    && addgroup user user
-COPY --from=build-env-debian /app/mycat /app/mycat
-COPY sekrit.txt attack.sh /app/
-RUN chown $USERNAME:$USERNAME /app \
+COPY --from=build-env-debian /app/permutil /app/permutil
+COPY attack.sh /app/
+RUN echo "Keep it secret, keep it safe" > /app/sekrit.txt \
+    && echo "Even root has secrets" > /app/root_sekrit.txt \
+    && chown $USERNAME:$USERNAME /app \
     && chown 0:1000 /app/sekrit.txt \
-    && chmod 606 /app/sekrit.txt
+    && chown 0:0 /app/root_sekrit.txt \
+    && chmod 606 /app/sekrit.txt /app/root_sekrit.txt
 
-USER $USERNAME
+#USER $USERNAME
 WORKDIR /app
-ENTRYPOINT ["/app/mycat"]
+ENTRYPOINT ["/app/permutil", "-p"]
 
 #ENTRYPOINT ["su", "-", "user"]

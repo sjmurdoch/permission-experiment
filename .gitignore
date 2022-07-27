@@ -1,3 +1,4 @@
 *.pyc
 scanperms/test/
 permission-experiment/permutil
+permission-experiment/permutil-sgid

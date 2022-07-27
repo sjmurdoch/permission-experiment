@@ -47,7 +47,7 @@ int printgroups()
 	return 0;
 }
 
-int setgroup(gid_t egid)
+int setgroup(uid_t euid, gid_t egid)
 {
 	int retval;
 
@@ -56,6 +56,14 @@ int setgroup(gid_t egid)
 	if (retval != 0)
 	{
 		perror("Error calling setegid");
+		exit(1);
+	}
+
+	printf("Changing euid to %d\n", euid);
+	retval = seteuid(euid);
+	if (retval != 0)
+	{
+		perror("Error calling seteuid");
 		exit(1);
 	}
 
@@ -91,7 +99,7 @@ void help()
 	printf("Usage:\n");
 	printf("  permutil -p\n    Print current group membership\n\n");
 	printf("  permutil -c FILENAME\n    Output contents of FILENAME to stdout\n\n");
-	printf("  permutil -s GID\n    set effective group to GID and print group membership\n\n");
+	printf("  permutil -s UID GID [FILENAME]\n    set effective user to UID, effective group to GID, and optionally output contents of FILENAME\n\n");
 }
 
 int main(int argc, char *argv[])
@@ -106,20 +114,30 @@ int main(int argc, char *argv[])
 		{
 			cat(argv[2]);
 		}
-		else if (strcmp(argv[1], "-s") == 0 && argc > 2)
+		else if (strcmp(argv[1], "-s") == 0 && argc > 3)
 		{
-			long int gid;
+			long int gid, uid;
 			char *end;
-			gid = strtol(argv[2], &end, 0);
+
+			uid = strtol(argv[2], &end, 0);
 			if (end == argv[2] || *end != '\0' || errno == ERANGE)
 			{
 				help();
 				return 1;
 			}
-			else
+
+			gid = strtol(argv[3], &end, 0);
+			if (end == argv[3] || *end != '\0' || errno == ERANGE)
 			{
-				setgroup(gid);
-				printgroups();
+				help();
+				return 1;
+			}
+
+			setgroup(uid, gid);
+			printgroups();
+
+			if (argc > 4) {
+				cat(argv[4]);
 			}
 		}
 		else
