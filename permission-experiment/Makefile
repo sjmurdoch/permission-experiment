@@ -14,6 +14,12 @@ attack:
 	@echo "\n\n>>> Running attack on debian..."
 	-docker run --rm -it --entrypoint /bin/sh -u user permission-experiment-debian /app/attack.sh
 
+attackroot:
+	@echo ">>> Running attack (root) on alpine..."
+	-docker run --rm -it --entrypoint /app/permutil -u root permission-experiment-alpine -s 1000 1000 root_sekrit.txt
+	@echo "\n\n>>> Running attack (root) on debian..."
+	-docker run --rm -it --entrypoint /app/permutil -u root permission-experiment-debian -s 1000 1000 root_sekrit.txt
+
 workaround:
 	@echo ">>> Running attack on alpine (with workaround)..."
 	-docker run --rm -it --entrypoint /bin/su -u 0 permission-experiment-alpine -l user -c /app/attack.sh
@@ -29,4 +35,4 @@ publish:
 permutil: permutil.c
 	gcc -Wall -o permutil permutil.c
 
-.PHONY: build run attack
+.PHONY: build run attack attackroot workaround publish
