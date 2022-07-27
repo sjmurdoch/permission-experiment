@@ -34,7 +34,15 @@ publish:
 	docker push sjmurdoch/permission-experiment:alpine-latest-$(ARCH)
 	docker push sjmurdoch/permission-experiment:debian-latest-$(ARCH)
 
+manifest:
+	docker manifest create sjmurdoch/permission-experiment:alpine-latest \
+	   --amend sjmurdoch/permission-experiment:alpine-latest-x86_64 --amend sjmurdoch/permission-experiment:alpine-latest-aarch64
+	docker manifest push sjmurdoch/permission-experiment:alpine-latest
+	docker manifest create sjmurdoch/permission-experiment:debian-latest \
+	   --amend sjmurdoch/permission-experiment:debian-latest-x86_64 --amend sjmurdoch/permission-experiment:debian-latest-aarch64
+	docker manifest push sjmurdoch/permission-experiment:debian-latest
+
 permutil: permutil.c
 	gcc -Wall -o permutil permutil.c
 
-.PHONY: build run attack attackroot workaround publish
+.PHONY: build run attack attackroot workaround publish manifest
