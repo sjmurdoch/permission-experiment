@@ -3,6 +3,7 @@ ARCH=$(shell uname -m)
 build:
 	-docker build -f Dockerfile.alpine -t permission-experiment-alpine .
 	-docker build -f Dockerfile.debian -t permission-experiment-debian .
+	-docker build -f Dockerfile.checker -t permission-experiment-checker .
 
 run:
 	@echo ">>> Testing alpine..."
@@ -31,8 +32,10 @@ workaround:
 publish:
 	docker build -t sjmurdoch/permission-experiment:alpine-latest-$(ARCH) -f Dockerfile.alpine .
 	docker build -t sjmurdoch/permission-experiment:debian-latest-$(ARCH) -f Dockerfile.debian .
+	docker build -t sjmurdoch/permission-experiment:checker-latest-$(ARCH) -f Dockerfile.checker .
 	docker push sjmurdoch/permission-experiment:alpine-latest-$(ARCH)
 	docker push sjmurdoch/permission-experiment:debian-latest-$(ARCH)
+	docker push sjmurdoch/permission-experiment:checker-latest-$(ARCH)
 
 manifest:
 	docker manifest create sjmurdoch/permission-experiment:alpine-latest \
@@ -41,6 +44,9 @@ manifest:
 	docker manifest create sjmurdoch/permission-experiment:debian-latest \
 	   --amend sjmurdoch/permission-experiment:debian-latest-x86_64 --amend sjmurdoch/permission-experiment:debian-latest-aarch64
 	docker manifest push sjmurdoch/permission-experiment:debian-latest
+	docker manifest create sjmurdoch/permission-experiment:checker-latest \
+	   --amend sjmurdoch/permission-experiment:checker-latest-x86_64 --amend sjmurdoch/permission-experiment:checker-latest-aarch64
+	docker manifest push sjmurdoch/permission-experiment:checker-latest
 
 permutil: permutil.c
 	gcc -Wall -o permutil permutil.c

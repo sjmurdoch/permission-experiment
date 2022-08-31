@@ -1,0 +1,12 @@
+FROM nginxinc/nginx-unprivileged:1.23
+USER root
+ARG USERNAME=nginx
+ARG ADDITIONAL_GID=1001
+ARG ADDITIONAL_GROUP=additional
+RUN groupadd --gid $ADDITIONAL_GID $ADDITIONAL_GROUP \
+    && usermod -a -G $ADDITIONAL_GROUP $USERNAME \
+    && chown -R nginx:nginx /usr/share/nginx/html
+COPY check-container.sh /docker-entrypoint.d/40-check-container.sh
+COPY webpages/*.html .
+COPY webpages/*.css /usr/share/nginx/html
+USER $USERNAME
